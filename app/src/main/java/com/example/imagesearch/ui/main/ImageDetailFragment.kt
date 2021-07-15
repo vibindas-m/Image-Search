@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.imagesearch.R
+import com.example.imagesearch.ui.extension.loadImageUrl
+import kotlinx.android.synthetic.main.fragment_image_detail.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ImageDetailFragment : Fragment() {
@@ -22,6 +24,11 @@ class ImageDetailFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_image_detail, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        fullImage.loadImageUrl(viewModel.getSelectedImage())
     }
 
 }

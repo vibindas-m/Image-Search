@@ -23,9 +23,19 @@ internal class MainViewModel(private val imageSearchUseCase: ImageSearchUseCase)
     val imageSearchList: LiveData<List<ImageSearchModel>>
         get() = _imageSearchList
 
+    private var selectedImage: ImageSearchModel? = null
+
     fun updateImageSearchResult(data: ImageSearchResultModel?) {
         totalCount = data?.totalCount ?: 0
         _imageSearchList.value = data?.imageSearchList
+    }
+
+    fun updateSelectedImage(data: ImageSearchModel) {
+        selectedImage = data
+    }
+
+    fun getSelectedImage(): String {
+        return selectedImage?.original ?: ""
     }
 
 }

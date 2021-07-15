@@ -17,6 +17,13 @@
         android:layout_height="150dp"
         android:visibility="gone" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="24dp"
@@ -26,12 +33,12 @@
         android:layout_margin="16dp"
         android:textSize="16sp"
         android:visibility="gone" />
-    <Button
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/nextBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Next"/>
+<!--    <Button-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        android:id="@+id/nextBtn"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Next"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
