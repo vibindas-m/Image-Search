@@ -49,7 +49,7 @@ class ImageSearchUseCaseTest {
             value = listOf()
         ))
         testCoroutineDispatcher.pauseDispatcher()
-        val resultLiveData = useCase.execute()
+        val resultLiveData = useCase.execute("test")
         val loadingResult = resultLiveData.getOrAwaitValue()
         Assert.assertTrue(loadingResult is Result.Loading)
 
@@ -69,7 +69,7 @@ class ImageSearchUseCaseTest {
     fun `test getSearchImage usecase with Failure result`() = mainCoroutineRule.runBlockingTest {
         coEvery { repo.getSearchImage() } returns Response.Error("Failed")
         testCoroutineDispatcher.pauseDispatcher()
-        val resultLiveData = useCase.execute()
+        val resultLiveData = useCase.execute("test")
         val loadingResult = resultLiveData.getOrAwaitValue()
         Assert.assertTrue(loadingResult is Result.Loading)
 

@@ -1,7 +1,7 @@
 package com.example.imagesearch.domain.model
 
-interface UseCase <R> {
-    fun execute(): R
+interface UseCase <P, R> {
+    fun execute(params: P): R
 }
 
 interface UseCaseWithParams <P, R> {

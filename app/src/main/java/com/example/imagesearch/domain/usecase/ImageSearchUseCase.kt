@@ -16,14 +16,14 @@ internal class ImageSearchUseCase(
     private val imageSearchRepo: ImageSearchRepo,
     private val customCoroutineDispatcherProvider: CustomCoroutineDispatcherProvider
 ) :
-    UseCase<LiveData<Result<ImageSearchResultModel>>>,
+    UseCase<String, LiveData<Result<ImageSearchResultModel>>>,
     CoroutineScope,
     Cancellable {
     var job: Job? = null
     override val coroutineContext: CoroutineContext
         get() = customCoroutineDispatcherProvider.io
 
-    override fun execute(): LiveData<Result<ImageSearchResultModel>> {
+    override fun execute(params: String): LiveData<Result<ImageSearchResultModel>> {
         val result = MutableLiveData<Result<ImageSearchResultModel>>()
         result.postValue(Result.Loading)
         job = launch {

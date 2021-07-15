@@ -5,7 +5,6 @@ data class ImageSearchResultModel(
     val totalCount: Long?,
     val imageSearchList: List<ImageSearchModel>?
 )
-
 data class ImageSearchModel(
     val thumbnail: String?,
     val original: String?,

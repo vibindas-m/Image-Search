@@ -16,10 +16,12 @@ import com.example.imagesearch.domain.model.ImageSearchResultModel
 import kotlinx.android.synthetic.main.fragment_image_search.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import com.example.imagesearch.domain.model.Result
+import com.example.imagesearch.domain.room.ImageSearchRoomData
 
 class ImageSearchFragment : Fragment() {
 
     private val viewModel: MainViewModel by sharedViewModel()
+    private var searchKeyword: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,14 +39,19 @@ class ImageSearchFragment : Fragment() {
     }
 
     private fun bindUI() {
-        viewModel.imageSearchEventTrigger.postValue(Event(Unit))
         viewModel.imageSearchEvent.observe(viewLifecycleOwner, imageSearchObserver)
-
+        viewModel.saveImageSearchDataStorageEvent.observe(viewLifecycleOwner, saveImageSearchObserver)
+        viewModel.getImageSearchFromStorageEvent.observe(viewLifecycleOwner, getImageSearchFromStorageObserver)
         viewModel.imageSearchList.observe(viewLifecycleOwner, Observer {
             it?.let {
                 loadImageSearchList(it)
             }
         })
+
+        viewModel.getImageSearchFromStorageTrigger.postValue(Event(searchKeyword))
+    }
+    private fun getImageSearchFromServer() {
+        viewModel.imageSearchEventTrigger.postValue(Event(searchKeyword))
     }
 
     private fun loadImageSearchList(list: List<ImageSearchModel>) {
@@ -61,13 +68,38 @@ class ImageSearchFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.adapter = imageSearchListAdapter
     }
+
+    private val getImageSearchFromStorageObserver = Observer<Result<ImageSearchRoomData>> {
+        if (it is Result.Loading) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            if (it is Result.Success) {
+                progressBar.visibility = View.GONE
+                viewModel.updateImageSearchFromStorage(it.data)
+            }
+            if (it is Result.Failure) {
+                getImageSearchFromServer()
+            }
+        }
+    }
+
+    private val saveImageSearchObserver = Observer<Result<Boolean>> {
+        if (it is Result.Loading) {
+            progressBar.visibility = View.VISIBLE
+        } else {
+            progressBar.visibility = View.GONE
+        }
+    }
+
     private val imageSearchObserver = Observer<Result<ImageSearchResultModel>> {
         if (it is Result.Loading) {
             progressBar.visibility = View.VISIBLE
         } else {
             progressBar.visibility = View.GONE
             if (it is Result.Success) {
-                viewModel.updateImageSearchResult(it.data)
+                viewModel.getImageSearchRoomData(it.data)?.let { imgSearchRoomDate ->
+                    viewModel.saveImageSearchDataStorageTrigger.postValue(Event(imgSearchRoomDate))
+                }
             }
             if (it is Result.Failure) {
                 showError(it.errorMsg)
