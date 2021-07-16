@@ -9,7 +9,7 @@ import com.example.imagesearch.domain.model.ImageSearchModel
 data class ImageSearchRoomData(
     @PrimaryKey
     @ColumnInfo(name = "search_key_word") val searchKeyword: String,
-    @ColumnInfo(name = "total_count") val totalCount: Long?,
+    @ColumnInfo(name = "has_next") val hasNext: Boolean?,
     @ColumnInfo(name = "search_list") val searchList: String?
 )
 

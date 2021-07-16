@@ -5,11 +5,19 @@
     android:layout_height="match_parent"
     tools:context=".ui.main.ImageDetailFragment">
 
+    <TextView
+        android:id="@+id/imageNameTv"
+        tools:text="Image name"
+        android:textSize="25sp"
+        android:layout_margin="24dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
     <ImageView
         android:id="@+id/fullImage"
+        android:src="@drawable/image_placeholder"
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 
 </FrameLayout>

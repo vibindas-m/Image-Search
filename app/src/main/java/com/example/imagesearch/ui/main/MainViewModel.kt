@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import com.example.imagesearch.data.ImageSearchRequestData
+import com.example.imagesearch.di.imageSearchModule
 import com.example.imagesearch.domain.model.Event
 import com.example.imagesearch.domain.model.ImageSearchModel
 import com.example.imagesearch.domain.model.ImageSearchResultModel
@@ -26,7 +28,7 @@ internal class MainViewModel(
     val imageSearchEvent: LiveData<Result<ImageSearchResultModel>> =
         Transformations.switchMap(imageSearchEventTrigger) {
             it.getContentIfNotHandled()?.let { keyword ->
-                imageSearchUseCase.execute(keyword)
+                imageSearchUseCase.execute(getImageSearchRequestData(keyword))
             }
         }
 
@@ -55,39 +57,64 @@ internal class MainViewModel(
     val imageSearchList: LiveData<List<ImageSearchModel>>
         get() = _imageSearchList
 
+    private var pageNumber: Int = 1
     private var selectedImage: ImageSearchModel? = null
 
-    fun updateImageSearchResult(data: ImageSearchResultModel?) {
-        data?.let {
-            _imageSearchRoomData.value =
-                ImageSearchRoomData("", it.totalCount ?: 0, gson.toJson(it.imageSearchList))
-        }
+    private fun getImageSearchRequestData(keyword: String): ImageSearchRequestData {
+        return ImageSearchRequestData(keyword, pageNumber, imageSearchList.value?.size ?: 0)
     }
 
     fun updateSelectedImage(data: ImageSearchModel) {
         selectedImage = data
     }
 
-    fun getSelectedImage(): String {
-        return selectedImage?.original ?: ""
+    fun getSelectedImage(): ImageSearchModel? {
+        return selectedImage
     }
 
     fun updateImageSearchFromStorage(data: ImageSearchRoomData?) {
         data?.let {
             _imageSearchRoomData.value = data
-            _imageSearchList.value = gson.fromJson(data.searchList, Array<ImageSearchModel>::class.java).toList()
+            if (!it.searchList.isNullOrEmpty()) {
+                _imageSearchList.value =
+                    gson.fromJson(data.searchList, Array<ImageSearchModel>::class.java).toList()
+            }
         }
 
     }
 
+    fun getHasNext(): Boolean {
+        return if (imageSearchRoomData.value?.hasNext == true) {
+            pageNumber++
+            true
+        } else false
+    }
 
-    fun getImageSearchRoomData(data: ImageSearchResultModel?): ImageSearchRoomData? {
-        _imageSearchList.value = data?.imageSearchList
+    fun getAndUpdateImageSearchRoomData(data: ImageSearchResultModel?, keyword: String): ImageSearchRoomData? {
         data?.let {
+            if (imageSearchList.value != null) {
+                val tempImageList =
+                    imageSearchList.value as? ArrayList<ImageSearchModel> ?: arrayListOf()
+                data.imageSearchList?.map { imageSearchModule ->
+                    tempImageList.add(imageSearchModule)
+                }
+                _imageSearchList.value = tempImageList
+            } else {
+                _imageSearchList.value = data.imageSearchList
+            }
             _imageSearchRoomData.value =
-                ImageSearchRoomData("", it.totalCount ?: 0, gson.toJson(it.imageSearchList))
+                ImageSearchRoomData(
+                    keyword,
+                    it.paginationModel?.hasNext,
+                    gson.toJson(it.imageSearchList)
+                )
         }
         return imageSearchRoomData.value
+    }
+
+    fun resetFetchedList() {
+        _imageSearchList.value = null
+        pageNumber = 1
     }
 
 }

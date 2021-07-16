@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import com.example.imagesearch.R
 import com.example.imagesearch.ui.extension.loadImageUrl
 import kotlinx.android.synthetic.main.fragment_image_detail.*
+import kotlinx.android.synthetic.main.image_search_list_item.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ImageDetailFragment : Fragment() {
@@ -28,7 +29,13 @@ class ImageDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fullImage.loadImageUrl(viewModel.getSelectedImage())
+        viewModel.getSelectedImage()?.let {
+            imageNameTv.text = it.title ?: ""
+            if (!it.original.isNullOrEmpty())
+                fullImage.loadImageUrl(it.original)
+        }
+
+
     }
 
 }

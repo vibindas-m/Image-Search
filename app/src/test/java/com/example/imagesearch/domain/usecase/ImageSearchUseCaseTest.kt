@@ -2,8 +2,10 @@ package com.example.imagesearch.domain.usecase
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.imagesearch.MainCoroutineRule
+import com.example.imagesearch.data.ImageSearchRequestData
 import com.example.imagesearch.data.ImageSearchResponse
 import com.example.imagesearch.domain.model.ImageSearchResultModel
+import com.example.imagesearch.domain.model.PaginationModel
 import com.example.imagesearch.domain.model.Response
 import com.example.imagesearch.domain.repository.ImageSearchRepo
 import io.mockk.coEvery
@@ -43,13 +45,13 @@ class ImageSearchUseCaseTest {
     @ExperimentalCoroutinesApi
     @Test
     fun `test getSearchImage usecase with success result`() = mainCoroutineRule.runBlockingTest {
-        coEvery { repo.getSearchImage() } returns Response.Success(ImageSearchResponse(
+        coEvery { repo.getSearchImage("test", 1) } returns Response.Success(ImageSearchResponse(
             _type = "test type",
             totalCount = 25,
             value = listOf()
         ))
         testCoroutineDispatcher.pauseDispatcher()
-        val resultLiveData = useCase.execute("test")
+        val resultLiveData = useCase.execute(ImageSearchRequestData("test", 1, 0))
         val loadingResult = resultLiveData.getOrAwaitValue()
         Assert.assertTrue(loadingResult is Result.Loading)
 
@@ -58,7 +60,7 @@ class ImageSearchUseCaseTest {
         Assert.assertTrue(successResult is Result.Success)
 
         Assert.assertEquals(ImageSearchResultModel(
-            totalCount = 25,
+            paginationModel = PaginationModel(true,25, 2),
             imageSearchList = listOf()
         ), (successResult as Result.Success).data
         )
@@ -67,9 +69,9 @@ class ImageSearchUseCaseTest {
     @ExperimentalCoroutinesApi
     @Test
     fun `test getSearchImage usecase with Failure result`() = mainCoroutineRule.runBlockingTest {
-        coEvery { repo.getSearchImage() } returns Response.Error("Failed")
+        coEvery { repo.getSearchImage("test", 1) } returns Response.Error("Failed")
         testCoroutineDispatcher.pauseDispatcher()
-        val resultLiveData = useCase.execute("test")
+        val resultLiveData = useCase.execute(ImageSearchRequestData("test", 1, 0))
         val loadingResult = resultLiveData.getOrAwaitValue()
         Assert.assertTrue(loadingResult is Result.Loading)
 

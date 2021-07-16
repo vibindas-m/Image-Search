@@ -2,6 +2,7 @@ package com.example.imagesearch.domain.usecase
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.imagesearch.data.ImageSearchRequestData
 import com.example.imagesearch.data.ImageSearchResponse
 import com.example.imagesearch.domain.model.*
 import com.example.imagesearch.domain.repository.ImageSearchRepo
@@ -16,20 +17,25 @@ internal class ImageSearchUseCase(
     private val imageSearchRepo: ImageSearchRepo,
     private val customCoroutineDispatcherProvider: CustomCoroutineDispatcherProvider
 ) :
-    UseCase<String, LiveData<Result<ImageSearchResultModel>>>,
+    UseCase<ImageSearchRequestData, LiveData<Result<ImageSearchResultModel>>>,
     CoroutineScope,
     Cancellable {
     var job: Job? = null
     override val coroutineContext: CoroutineContext
         get() = customCoroutineDispatcherProvider.io
 
-    override fun execute(params: String): LiveData<Result<ImageSearchResultModel>> {
+    override fun execute(params: ImageSearchRequestData): LiveData<Result<ImageSearchResultModel>> {
         val result = MutableLiveData<Result<ImageSearchResultModel>>()
         result.postValue(Result.Loading)
         job = launch {
-            val toPost = when (val response = imageSearchRepo.getSearchImage()) {
+            val toPost = when (val response =
+                imageSearchRepo.getSearchImage(params.keyword, params.pageNumber)) {
                 is Response.Success -> {
-                    Result.Success(response.data.getImageSearchResult())
+                    Result.Success(
+                        response.data.getImageSearchResult(
+                            params.fetchedListSize,
+                            params.pageNumber
+                        ))
                 }
                 is Response.Error -> {
                     Result.Failure(response.errorMsg)
@@ -46,9 +52,16 @@ internal class ImageSearchUseCase(
     }
 }
 
-private fun ImageSearchResponse.getImageSearchResult(): ImageSearchResultModel {
+private fun ImageSearchResponse.getImageSearchResult(
+    fetchedListSize: Int,
+    pageNumber: Int
+): ImageSearchResultModel {
     return ImageSearchResultModel(
-        totalCount = this.totalCount,
+        paginationModel = PaginationModel(
+            hasNext = (fetchedListSize + (this.value?.size ?: 0)) < (this.totalCount ?: 0),
+            totalCount = this.totalCount ?: 0,
+            pageNumber = pageNumber + 1
+        ),
         imageSearchList = this.value?.map {
             ImageSearchModel(
                 thumbnail = it.thumbnail,

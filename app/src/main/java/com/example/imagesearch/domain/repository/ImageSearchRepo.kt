@@ -7,9 +7,9 @@ import retrofit2.await
 
 class ImageSearchRepo(private val imageSearchServices: ImageSearchServices) {
 
-    suspend fun getSearchImage(): Response<ImageSearchResponse> {
+    suspend fun getSearchImage(keyword: String, pageNumber: Int): Response<ImageSearchResponse> {
         return try {
-            val result = imageSearchServices.getImageSearch().await()
+            val result = imageSearchServices.getImageSearch(keyword, pageNumber, 10,true).await()
             with(result) {
                 if (this != null) {
                     Response.Success(this)

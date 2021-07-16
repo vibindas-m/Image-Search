@@ -24,7 +24,7 @@ internal class SaveImageSearchToStorageUseCase(private val imageSearchRoomUseCas
         result.postValue(Result.Loading)
         job = launch {
             val toPost = try {
-                val response = imageSearchRoomUseCase.saveImageSearchData(params)
+                imageSearchRoomUseCase.saveImageSearchData(params)
                 Result.Success(true)
             } catch (e: Exception) {
                 Result.Failure("Data not Saved")
