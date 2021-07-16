@@ -17,16 +17,16 @@ internal class ImageSearchUseCase(
     private val imageSearchRepo: ImageSearchRepo,
     private val customCoroutineDispatcherProvider: CustomCoroutineDispatcherProvider
 ) :
-    UseCase<ImageSearchRequestData, LiveData<Result<ImageSearchResultModel>>>,
+    UseCase<ImageSearchRequestData, LiveData<Event<Result<ImageSearchResultModel>>>>,
     CoroutineScope,
     Cancellable {
     var job: Job? = null
     override val coroutineContext: CoroutineContext
         get() = customCoroutineDispatcherProvider.io
 
-    override fun execute(params: ImageSearchRequestData): LiveData<Result<ImageSearchResultModel>> {
-        val result = MutableLiveData<Result<ImageSearchResultModel>>()
-        result.postValue(Result.Loading)
+    override fun execute(params: ImageSearchRequestData): LiveData<Event<Result<ImageSearchResultModel>>> {
+        val result = MutableLiveData<Event<Result<ImageSearchResultModel>>>()
+        result.postValue(Event(Result.Loading))
         job = launch {
             val toPost = when (val response =
                 imageSearchRepo.getSearchImage(params.keyword, params.pageNumber)) {
@@ -41,7 +41,7 @@ internal class ImageSearchUseCase(
                     Result.Failure(response.errorMsg)
                 }
             }
-            result.postValue(toPost)
+            result.postValue(Event(toPost))
         }
         return result
     }

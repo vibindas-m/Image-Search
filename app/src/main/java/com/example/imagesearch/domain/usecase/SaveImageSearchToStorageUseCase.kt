@@ -12,16 +12,16 @@ import java.lang.Exception
 internal class SaveImageSearchToStorageUseCase(private val imageSearchRoomUseCase: ImageSearchRoomUseCase,
                                                private val customCoroutineDispatcherProvider: CustomCoroutineDispatcherProvider
 ) :
-    UseCase<ImageSearchRoomData, LiveData<Result<Boolean>>>,
+    UseCase<ImageSearchRoomData, LiveData<Event<Result<Boolean>>>>,
     CoroutineScope,
     Cancellable {
     var job: Job? = null
     override val coroutineContext: CoroutineContext
         get() = customCoroutineDispatcherProvider.io
 
-    override fun execute(params: ImageSearchRoomData): LiveData<Result<Boolean>> {
-        val result = MutableLiveData<Result<Boolean>>()
-        result.postValue(Result.Loading)
+    override fun execute(params: ImageSearchRoomData): LiveData<Event<Result<Boolean>>> {
+        val result = MutableLiveData<Event<Result<Boolean>>>()
+        result.postValue(Event(Result.Loading))
         job = launch {
             val toPost = try {
                 imageSearchRoomUseCase.saveImageSearchData(params)
@@ -30,7 +30,7 @@ internal class SaveImageSearchToStorageUseCase(private val imageSearchRoomUseCas
                 Result.Failure("Data not Saved")
             }
 
-            result.postValue(toPost)
+            result.postValue(Event(toPost))
         }
         return result
     }

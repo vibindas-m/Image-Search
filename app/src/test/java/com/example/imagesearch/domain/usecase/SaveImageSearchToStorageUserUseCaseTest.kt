@@ -78,11 +78,11 @@ class SaveImageSearchToStorageUserUseCaseTest {
         val resultLiveData = useCase.execute(ImageSearchRoomData("hello", true, imageSearchListString))
         val loadingResult = resultLiveData.getOrAwaitValue()
 
-        Assert.assertTrue(loadingResult is Result.Loading)
+        Assert.assertTrue(loadingResult.getContentIfNotHandled() is Result.Loading)
 
         testCoroutineDispatcher.resumeDispatcher()
         val successResult = resultLiveData.getOrAwaitValue()
-        Assert.assertTrue(successResult is Result.Success)
+        Assert.assertTrue(successResult.getContentIfNotHandled() is Result.Success)
 
     }
 }

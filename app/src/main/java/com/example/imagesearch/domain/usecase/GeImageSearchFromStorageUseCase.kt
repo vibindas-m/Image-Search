@@ -10,7 +10,7 @@ import com.example.imagesearch.domain.util.CustomCoroutineDispatcherProvider
 
 internal class GeImageSearchFromStorageUseCase(private val imageSearchRoomUseCase: ImageSearchRoomUseCase,
                                       private val customCoroutineDispatcherProvider: CustomCoroutineDispatcherProvider
-) : UseCase<String, LiveData<Result<ImageSearchRoomData>>>,
+) : UseCase<String, LiveData<Event<Result<ImageSearchRoomData>>>>,
     CoroutineScope,
     Cancellable {
     var job: Job? = null
@@ -18,15 +18,15 @@ internal class GeImageSearchFromStorageUseCase(private val imageSearchRoomUseCas
         get() = customCoroutineDispatcherProvider.io
 
 
-    override fun execute(params: String): LiveData<Result<ImageSearchRoomData>> {
-        val result = MutableLiveData<Result<ImageSearchRoomData>>()
-        result.postValue(Result.Loading)
+    override fun execute(params: String): LiveData<Event<Result<ImageSearchRoomData>>> {
+        val result = MutableLiveData<Event<Result<ImageSearchRoomData>>>()
+        result.postValue(Event(Result.Loading))
         job = launch {
             val toPost = when (val response = imageSearchRoomUseCase.getImageSearchData(params)) {
                 null -> Result.Failure("No data, Plz connect your internet and try again")
                 else -> Result.Success(response)
             }
-            result.postValue(toPost)
+            result.postValue(Event(toPost))
         }
         return result
     }

@@ -78,14 +78,14 @@ class GetImageSearchFromStorageUserUseCaseTest {
         val resultLiveData = useCase.execute("hello")
         val loadingResult = resultLiveData.getOrAwaitValue()
 
-        Assert.assertTrue(loadingResult is Result.Loading)
+        Assert.assertTrue(loadingResult.getContentIfNotHandled() is Result.Loading)
 
         testCoroutineDispatcher.resumeDispatcher()
         val successResult = resultLiveData.getOrAwaitValue()
-        Assert.assertTrue(successResult is Result.Success)
+        Assert.assertTrue(successResult.getContentIfNotHandled() is Result.Success)
 
        val result =  ImageSearchRoomData(searchKeyword="hello", hasNext=true, searchList=imageSearchListString)
-        Assert.assertEquals(result, (successResult as Result.Success).data)
+        Assert.assertEquals(result, (successResult.peekContent() as Result.Success).data)
     }
 
     @ExperimentalCoroutinesApi
@@ -96,11 +96,11 @@ class GetImageSearchFromStorageUserUseCaseTest {
         testCoroutineDispatcher.pauseDispatcher()
         val resultLiveData = useCase.execute("hello")
         val loadingResult = resultLiveData.getOrAwaitValue()
-        Assert.assertTrue(loadingResult is Result.Loading)
+        Assert.assertTrue(loadingResult.getContentIfNotHandled() is Result.Loading)
 
         testCoroutineDispatcher.resumeDispatcher()
         val successResult = resultLiveData.getOrAwaitValue()
-        Assert.assertTrue(successResult is Result.Failure)
+        Assert.assertTrue(successResult.getContentIfNotHandled() is Result.Failure)
     }
 
 }

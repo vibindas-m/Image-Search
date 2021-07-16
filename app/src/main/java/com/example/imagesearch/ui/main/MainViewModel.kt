@@ -25,7 +25,7 @@ internal class MainViewModel(
 ) : ViewModel() {
 
     internal val imageSearchEventTrigger = MutableLiveData<Event<String>>()
-    val imageSearchEvent: LiveData<Result<ImageSearchResultModel>> =
+    val imageSearchEvent: LiveData<Event<Result<ImageSearchResultModel>>> =
         Transformations.switchMap(imageSearchEventTrigger) {
             it.getContentIfNotHandled()?.let { keyword ->
                 imageSearchUseCase.execute(getImageSearchRequestData(keyword))
@@ -34,7 +34,7 @@ internal class MainViewModel(
 
 
     internal val getImageSearchFromStorageTrigger = MutableLiveData<Event<String>>()
-    val getImageSearchFromStorageEvent: LiveData<Result<ImageSearchRoomData>> =
+    val getImageSearchFromStorageEvent: LiveData<Event<Result<ImageSearchRoomData>>> =
         Transformations.switchMap(getImageSearchFromStorageTrigger) {
             it.getContentIfNotHandled()?.let { keyword ->
                 getImageSearchToStorageUseCase.execute(keyword)
@@ -42,7 +42,7 @@ internal class MainViewModel(
         }
 
     internal val saveImageSearchDataStorageTrigger = MutableLiveData<Event<ImageSearchRoomData>>()
-    val saveImageSearchDataStorageEvent: LiveData<Result<Boolean>> =
+    val saveImageSearchDataStorageEvent: LiveData<Event<Result<Boolean>>> =
         Transformations.switchMap(saveImageSearchDataStorageTrigger) {
             it.getContentIfNotHandled()?.let { imageData ->
                 saveImageSearchToStorageUseCase.execute(imageData)
