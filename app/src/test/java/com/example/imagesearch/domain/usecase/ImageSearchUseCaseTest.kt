@@ -15,6 +15,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.*
 import com.example.imagesearch.domain.model.Result
+import io.mockk.slot
 
 class ImageSearchUseCaseTest {
     @get:Rule
@@ -40,6 +41,26 @@ class ImageSearchUseCaseTest {
     @After
     fun after() {
         testCoroutineDispatcher.cleanupTestCoroutines()
+    }
+
+    @ExperimentalCoroutinesApi
+    @Test
+    fun `test getSearchImage usecase request params`() = mainCoroutineRule.runBlockingTest {
+        val slot1 = slot<String>()
+        val slot2 = slot<Int>()
+        coEvery { repo.getSearchImage(capture(slot1), capture(slot2)) } returns Response.Success(ImageSearchResponse(
+            _type = "test type",
+            totalCount = 25,
+            value = listOf()
+        ))
+
+        //when
+        useCase.execute(ImageSearchRequestData("hello", 1, 0))
+        testCoroutineDispatcher.resumeDispatcher()
+
+        //Then
+        Assert.assertEquals("hello", slot1.captured)
+        Assert.assertEquals(1, slot2.captured)
     }
 
     @ExperimentalCoroutinesApi
